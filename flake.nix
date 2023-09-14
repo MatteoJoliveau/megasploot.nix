@@ -32,13 +32,6 @@
             dungeondraft = utils.lib.mkApp { drv = self.packages.${system}.dungeondraft; };
             wonderdraft = utils.lib.mkApp { drv = self.packages.${system}.wonderdraft; };
           };
-
-          devShells.default = pkgs.mkShell
-            {
-              buildInputs = with pkgs; [
-
-              ];
-            };
         }) // {
       overlays.default = final: prev: {
         dungeondraft = self.packages.${prev.system}.dungeondraft;
