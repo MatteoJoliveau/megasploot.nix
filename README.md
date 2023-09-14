@@ -31,5 +31,11 @@ After running one of the proposed commands, you should be able to retry the inst
 
 Feel free to request newer versions by opening an issue, or better yet submitting a PR yourself that updates the version number and SHA256 hash of the relevant software. This repository is maintained in a best-effort way, so it may lag behind a bit.
 
+## License
+
+The source code provided in this repository is copyright of Matteo Joliveau and freely usable under the terms of the [MIT License](LICENSE).
+
+Megasploot's software is copyright of Tailwind Games LLC and subject to the terms of their End-User License Agreement (provided in each software directory). This repository DOES NOT REDISTRIBUTE any code or software by Tailwind Games LLC directly.
+
 [Megasploot]: https://www.megasploot.com/
 [Nix and NixOS]: https://nixos.org
