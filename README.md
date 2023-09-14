@@ -7,6 +7,70 @@
 - [Dungeondraft](https://dungeondraft.net). Systems: Linux AMD64
 - [Wonderdraft](https://wonderdraft.net). Systems: Linux AMD64
 
+## Usage
+
+We use [Flakes] to distribute the packages. If you don't use flakes, you really should, but otherwise the packages themselves are simple calls to `mkDerivation`, so they should be easy to extract and import into your specific setup.
+
+To run the software without adding it to your configuration, you can use `nix run`:
+
+`nix run github:matteojoliveau/megasploot.nix#dungeondraft` 
+
+If you get an error about the unfree license, add `NIXPKGS_ALLOW_UNFREE` and `--impure` to the command:
+
+`NIXPKGS_ALLOW_UNFREE=1 nix run github:matteojoliveau/megasploot.nix#dungeondraft --impure` 
+
+To add them permanently to your setup, import them as a flake and add the overlay to nixpkgs:
+
+```nix
+{
+  inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-23.05";
+    megasploot = "github:matteojoliveau/megasploot.nix";
+  };
+
+  outputs = { self, nixpkgs, megasploot }:
+    let
+      system = "x86_64-linux";
+      pkgs = import nixpkgs {
+        inherit system;
+
+        config.allowUnfree = true;
+
+        overlays = [
+          megasploot.overlays.default
+        ];
+    };
+    in
+    // rest of your flake config
+}
+```
+
+Or you can directly inject it into your NixOS config:
+
+```nix
+{
+  inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-23.05";
+    megasploot = "github:matteojoliveau/megasploot.nix";
+  };
+
+  outputs = { self, nixpkgs, megasploot }: {
+    nixosConfigurations.hostname = nixpkgs.lib.nixosSystem {
+      system = "x86_64-linux";
+      modules = [
+        {config, pkgs, ...}: {
+          nixpkgs.overlays = [megasploot.overlays.default];
+          environment.systemPackages = with pkgs; [
+            dungeondraft
+            wonderdraft
+          ];
+        }
+      ]
+    };
+  }
+}
+```
+
 ## Disclaimer
 
 Megasploot sells proprietary software that we are not allowed to redistribute. This repository only contains Nix derivation that package up their software for use in Nix-based systems. You have to provide the software yourself by purchasing it from the respective official site, downloading the zip file and adding it manually to the nix store.

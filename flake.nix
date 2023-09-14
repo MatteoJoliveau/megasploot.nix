@@ -15,30 +15,34 @@
       mapSystem = (system: nixpkgs.lib.getAttrFromPath [ system ] systemsMap);
 
     in
-    utils.lib.eachSystem [ systems.x86_64-linux ] (system:
-      let
-        pkgs = import nixpkgs { inherit system; };
-      in
-      {
-        formatter = pkgs.nixpkgs-fmt;
+    utils.lib.eachSystem [ systems.x86_64-linux ]
+      (system:
+        let
+          pkgs = import nixpkgs { inherit system; config.allowUnfree = true; };
+        in
+        {
+          formatter = pkgs.nixpkgs-fmt;
 
-        packages = {
-          dungeondraft = pkgs.callPackage ./dungeondraft { inherit mapSystem; };
-          wonderdraft = pkgs.callPackage ./wonderdraft { inherit mapSystem; };
-        };
-
-        apps = {
-          dungeondraft = utils.lib.mkApp { drv = self.packages.${system}.dungeondraft; };
-          wonderdraft = utils.lib.mkApp { drv = self.packages.${system}.wonderdraft; };
-        };
-
-        devShells.default = pkgs.mkShell
-          {
-            NIXPKGS_ALLOW_UNFREE = "1"; # Hey, none of these software is FOSS, so...
-
-            buildInputs = with pkgs; [
-
-            ];
+          packages = {
+            dungeondraft = pkgs.callPackage ./dungeondraft { inherit mapSystem; };
+            wonderdraft = pkgs.callPackage ./wonderdraft { inherit mapSystem; };
           };
-      });
+
+          apps = {
+            dungeondraft = utils.lib.mkApp { drv = self.packages.${system}.dungeondraft; };
+            wonderdraft = utils.lib.mkApp { drv = self.packages.${system}.wonderdraft; };
+          };
+
+          devShells.default = pkgs.mkShell
+            {
+              buildInputs = with pkgs; [
+
+              ];
+            };
+        }) // {
+      overlays.default = final: prev: {
+        dungeondraft = self.packages.${prev.system}.dungeondraft;
+        wonderdraft = self.packages.${prev.system}.wonderdraft;
+      };
+    };
 }
